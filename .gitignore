@@ -1,0 +1,2 @@
+# add node module path in git ignore
+/node_modules
