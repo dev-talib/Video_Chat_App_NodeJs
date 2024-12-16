@@ -1,4 +1,6 @@
 const express = require('express');
+const session = require('express-session'); 
+const dotenv = require('dotenv');  
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -10,16 +12,49 @@ const peer = ExpressPeerServer(server , {
 });
 app.use('/peerjs', peer);
 app.set('view engine', 'ejs')
-app.use(express.static('public'))
+app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true })); 
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Retrieve secret code from environment variables
+const SECRET_CODE = process.env.SECRET_CODE;
+
+// Set up express-session middleware
+app.use(session({
+  secret: 'your-secret-key', // Secret key to sign the session ID cookie
+  resave: false,             // Don't save session if unmodified
+  saveUninitialized: true,   // Create session if one doesn't exist
+  cookie: { secure: false }  // For development; use true with HTTPS
+}));
 
 
-app.get('/' , (req,res)=>{
-  res.redirect(`/${uuidv4()}`);
+// Route to redirect to the security page
+app.get('/', (req, res) => {
+  res.render('security'); 
+});
+
+// Route to handle form submission and redirect to room if code is correct
+app.post('/enter-room', (req, res) => {
+  const enteredCode = req.body.secretCode;
+  
+  if (enteredCode === SECRET_CODE) {
+    req.session.authenticated = true; // Store the session state
+    res.redirect(`/${uuidv4()}`); // Redirect to a new room after the correct code is entered
+  } else {
+    res.render('security', { message: 'Invalid code! Please try again.' }); 
+  }
 });
 
 app.get('/:room' , (req,res)=>{
-    res.render('index' , {RoomId:req.params.room});
+  if (!req.session.authenticated) {
+    return res.redirect('/');
+  }
+
+  res.render('index' , {RoomId:req.params.room});
 });
+
 io.on("connection" , (socket)=>{
   socket.on('newUser' , (id , room)=>{
     socket.join(room);
