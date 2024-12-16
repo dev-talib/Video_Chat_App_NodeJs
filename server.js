@@ -1,4 +1,6 @@
 const express = require('express');
+const session = require('express-session'); 
+const dotenv = require('dotenv');  
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -11,28 +13,56 @@ const peer = ExpressPeerServer(server, {
 app.use('/peerjs', peer);
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true })); 
 
-// Redirect to a unique room when the root URL is accessed
+// Load environment variables from .env file
+dotenv.config();
+
+// Retrieve secret code from environment variables
+const SECRET_CODE = process.env.SECRET_CODE;
+
+// Set up express-session middleware
+app.use(session({
+  secret: 'your-secret-key', // Secret key to sign the session ID cookie
+  resave: false,             // Don't save session if unmodified
+  saveUninitialized: true,   // Create session if one doesn't exist
+  cookie: { secure: false }  // For development; use true with HTTPS
+}));
+
+// Route to redirect to the security page
 app.get('/', (req, res) => {
-  res.redirect(`/${uuidv4()}`);
+  res.render('security'); 
 });
 
-// Render the index.ejs file and pass the RoomId parameter
+// Route to handle form submission and redirect to room if code is correct
+app.post('/enter-room', (req, res) => {
+  const enteredCode = req.body.secretCode;
+  
+  if (enteredCode === SECRET_CODE) {
+    req.session.authenticated = true; // Store the session state
+    res.redirect(`/${uuidv4()}`); // Redirect to a new room after the correct code is entered
+  } else {
+    res.render('security', { message: 'Invalid code! Please try again.' }); 
+  }
+});
+
+// Route to render the video room after entering the secret code
 app.get('/:room', (req, res) => {
+  if (!req.session.authenticated) {
+    // If user is not authenticated, redirect to the security page
+    return res.redirect('/');
+  }
+
   res.render('index', { RoomId: req.params.room });
 });
 
 // Handle socket.io connections
 io.on("connection", (socket) => {
-  // When a new user joins a room
   socket.on('newUser', (id, room) => {
     socket.join(room);
-    // Notify other users in the room that a new user has joined
     socket.to(room).broadcast.emit('userJoined', id);
     
-    // Handle disconnection of a user
     socket.on('disconnect', () => {
-      // Notify other users in the room that a user has disconnected
       socket.to(room).broadcast.emit('userDisconnect', id);
     });
   });
