@@ -4,6 +4,11 @@ let myVideoStream;
 let myId;
 var videoGrid = document.getElementById('video-grid')
 var myvideo = document.createElement('video');
+
+let fullscreenVideo = document.createElement('video');
+fullscreenVideo.classList.add('fullscreen-video'); 
+document.body.appendChild(fullscreenVideo); 
+
 myvideo.muted = true;
 const peerConnections = {}
 navigator.mediaDevices.getUserMedia({
@@ -68,9 +73,6 @@ function addVideo(video , stream){
 
 
 
-
-// extra functionality
-
 const muteUnmute = () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -124,4 +126,45 @@ const setPlayVideo = () => {
     <span>Play Video</span>
   `
   document.querySelector('.main__video_button').innerHTML = html;
+}
+
+
+// Add click event to each video element in the video grid
+videoGrid.addEventListener('click', (event) => {
+  const videoElement = event.target;
+
+  // Check if the clicked element is a video
+  if (videoElement.tagName === 'VIDEO') {
+    // Toggle fullscreen
+    if (!fullscreenVideo.classList.contains('active')) {
+      openFullscreen(videoElement);
+    } else {
+      closeFullscreen();
+    }
+  }
+});
+
+// Function to open the video in fullscreen
+function openFullscreen(videoElement) {
+  fullscreenVideo.srcObject = videoElement.srcObject; // Set the same video stream
+  fullscreenVideo.play();
+  fullscreenVideo.classList.add('active'); // Show the video
+  videoElement.style.display = 'none'; // Hide the clicked video in the grid
+
+  // Add event listener to the fullscreen video to handle clicks to close fullscreen
+  fullscreenVideo.addEventListener('click', closeFullscreen);
+}
+
+// Function to close the fullscreen mode
+function closeFullscreen() {
+  fullscreenVideo.classList.remove('active'); // Hide the fullscreen video
+  const visibleVideo = document.querySelector('video');
+  if (visibleVideo) {
+    visibleVideo.style.display = 'block'; // Make other videos visible again
+  }
+  fullscreenVideo.pause(); // Pause the fullscreen video
+  fullscreenVideo.srcObject = null; // Clear the video stream
+  
+  // Remove the event listener to prevent multiple listeners
+  fullscreenVideo.removeEventListener('click', closeFullscreen);
 }

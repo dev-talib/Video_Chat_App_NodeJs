@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PeerLink</title>
     <link rel="stylesheet" href="security.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h2>Enter Secret Code to Join Video Call</h2>
-
-        <!-- Display error message if passed -->
+        <h2>Your Private Room Awaits. Enter the Code to Join!</h2>
+        <p class="contact-message">Contact the developer for the secret code.</p>
+       
         <% if (typeof message !== 'undefined') { %>
             <p class="error"><%= message %></p>
         <% } %>
 
         <form action="/enter-room" method="POST">
+            <input type="text" name="roomCode" placeholder="Enter room code" required />
             <input type="text" name="secretCode" placeholder="Enter secret code" required />
-            <br />
-            <button type="submit">Enter</button>
+            
+            <button type="submit">
+                <i class="fas fa-video"></i> Enter
+            </button>
         </form>
     </div>
 </body>
