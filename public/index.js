@@ -2,6 +2,7 @@ const socket = io('/');
 const peer = new Peer();
 let myVideoStream;
 let myId;
+let lastClickedVideo = null;
 var videoGrid = document.getElementById('video-grid')
 var myvideo = document.createElement('video');
 
@@ -144,11 +145,13 @@ videoGrid.addEventListener('click', (event) => {
   }
 });
 
+
 // Function to open the video in fullscreen
 function openFullscreen(videoElement) {
   fullscreenVideo.srcObject = videoElement.srcObject; // Set the same video stream
   fullscreenVideo.play();
-  fullscreenVideo.classList.add('active'); // Show the video
+  fullscreenVideo.classList.add('active'); // Show the fullscreen video
+  lastClickedVideo = videoElement; // Track the clicked video
   videoElement.style.display = 'none'; // Hide the clicked video in the grid
 
   // Add event listener to the fullscreen video to handle clicks to close fullscreen
@@ -158,13 +161,14 @@ function openFullscreen(videoElement) {
 // Function to close the fullscreen mode
 function closeFullscreen() {
   fullscreenVideo.classList.remove('active'); // Hide the fullscreen video
-  const visibleVideo = document.querySelector('video');
-  if (visibleVideo) {
-    visibleVideo.style.display = 'block'; // Make other videos visible again
+  if (lastClickedVideo) {
+    lastClickedVideo.style.display = 'block'; // Restore visibility of the last clicked video
   }
   fullscreenVideo.pause(); // Pause the fullscreen video
   fullscreenVideo.srcObject = null; // Clear the video stream
-  
+
   // Remove the event listener to prevent multiple listeners
   fullscreenVideo.removeEventListener('click', closeFullscreen);
+
+  lastClickedVideo = null; // Clear the reference to the last clicked video
 }
