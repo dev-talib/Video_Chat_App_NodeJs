@@ -1,40 +1,111 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;  /* Align at the top of the screen */
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: #f9f9f9;
+    padding-top: 50px; /* Add some space from the top */
 }
+
 .container {
     background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 550px;
+    box-sizing: border-box;
+    text-align: center;
 }
+
 h2 {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    font-size: 30px;
+    color: #333;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: fadeIn 1.5s ease-out; /* Fade-in animation */
 }
+
 input[type="text"] {
-    padding: 10px;
-    width: 200px;
+    padding: 15px;
+    width: 100%;
     margin-bottom: 20px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
 }
+
+input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
 button {
-    padding: 10px 20px;
+    padding: 15px 30px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
+
 button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
 }
+
+button i {
+    font-size: 20px;
+}
+
 .error {
     color: red;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.contact-message {
+    font-size: 14px; /* Small font size */
+    color: #555; /* Slightly gray color for subtlety */
+    text-align: center;
     margin-top: 10px;
+    /* font-style: italic; Optional: makes it look a little more casual */
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+    }
+
+    button {
+        width: 100%;
+    }
 }

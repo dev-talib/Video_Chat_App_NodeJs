@@ -38,10 +38,11 @@ app.get('/', (req, res) => {
 // Route to handle form submission and redirect to room if code is correct
 app.post('/enter-room', (req, res) => {
   const enteredCode = req.body.secretCode;
+  const roomCode = req.body.roomCode;
   
-  if (enteredCode === SECRET_CODE) {
+  if (enteredCode === SECRET_CODE && roomCode) {
     req.session.authenticated = true; // Store the session state
-    res.redirect(`/${uuidv4()}`); // Redirect to a new room after the correct code is entered
+    res.redirect(`/${roomCode}`); // Redirect to a new room after the correct code is entered
   } else {
     res.render('security', { message: 'Invalid code! Please try again.' }); 
   }
@@ -57,7 +58,7 @@ app.get('/:room' , (req,res)=>{
 
 io.on("connection" , (socket)=>{
   socket.on('newUser' , (id , room)=>{
-    socket.join(room);
+      socket.join(room);
     socket.to(room).broadcast.emit('userJoined' , id);
     socket.on('disconnect' , ()=>{
         socket.to(room).broadcast.emit('userDisconnect' , id);
